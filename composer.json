@@ -1,0 +1,13 @@
+{
+    "name": "javleds/traccar-api",
+    "description": "Traccar API wrapper under simpligps-standard",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Javier Ledezma",
+            "email": "jledezma@medtrainer.com"
+        }
+    ],
+    "require": {}
+}
