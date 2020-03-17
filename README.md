@@ -1,0 +1,1 @@
+# Laravel traccar API Wrapper
