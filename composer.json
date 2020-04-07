@@ -9,5 +9,28 @@
             "email": "jledezma@medtrainer.com"
         }
     ],
-    "require": {}
+    "autoload": {
+        "psr-4": {
+            "Javleds\\Traccar\\": "src/"
+        },
+        "files": [
+            "src/helpers.php"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Javleds\\Traccar\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Javleds\\Traccar\\TraccarServiceProvider"
+            ],
+            "aliases": {}
+        }
+    },
+    "require": {
+        "orchestra/testbench": "^5.1"
+    }
 }
