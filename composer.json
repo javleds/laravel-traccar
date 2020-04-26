@@ -31,6 +31,8 @@
         }
     },
     "require": {
-        "orchestra/testbench": "^5.1"
+        "orchestra/testbench": "^5.1",
+        "simpligps/simpligps-standard": "dev-master",
+        "guzzlehttp/guzzle": "^6.5"
     }
 }
