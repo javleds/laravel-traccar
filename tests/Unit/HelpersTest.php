@@ -4,7 +4,7 @@ namespace Javleds\Traccar\Tests\Unit\Helpers;
 
 use Javleds\Traccar\Tests\BaseTestCase;
 
-class Helpers extends BaseTestCase
+class HelpersTest extends BaseTestCase
 {
     public function testGetBaseDir(): void
     {
