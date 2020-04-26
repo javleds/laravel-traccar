@@ -22,15 +22,20 @@
             "Javleds\\Traccar\\Tests\\": "tests/"
         }
     },
+    "require": {
+        "orchestra/testbench": "^5.1",
+        "simpligps/simpligps-standard": "dev-master",
+        "guzzlehttp/guzzle": "^6.5",
+        "ext-json": "*"
+    },
     "extra": {
         "laravel": {
             "providers": [
                 "Javleds\\Traccar\\TraccarServiceProvider"
             ],
-            "aliases": {}
+            "aliases": {
+                "TraccarClient": "Javleds\\TraccarApi\\Facades\\Client"
+            }
         }
-    },
-    "require": {
-        "orchestra/testbench": "^5.1"
     }
 }
