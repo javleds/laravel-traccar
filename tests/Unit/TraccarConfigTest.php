@@ -29,6 +29,8 @@ class TraccarConfigTest extends BaseTestCase
     {
         return [
             ['base_url'],
+            ['auth.username'],
+            ['auth.password'],
         ];
     }
 }
