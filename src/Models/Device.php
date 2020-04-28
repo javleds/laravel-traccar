@@ -3,54 +3,29 @@
 namespace Javleds\Traccar\Models;
 
 use DateTime;
-use Javleds\Traccar\Contracts\Importable;
+use Illuminate\Database\Eloquent\Model;
 use Javleds\Traccar\Facades\Client;
 
-class Device implements Importable
+class Device extends Model
 {
-    const ENDPOINT = '/devices';
+    const ENDPOINT = 'devices';
 
-    /** @var int */
-    public $id;
-
-    /** @var string */
-    public $name;
-
-    /** @var string */
-    public $uniqueId;
-
-    /** @var string */
-    public $status;
-
-    /** @var boolean */
-    public $disabled;
-
-    /** @var DateTime */
-    public $lastUpdate;
-
-    /** @var int */
-    public $positionId;
-
-    /** @var int */
-    public $groupId;
-
-    /** @var string */
-    public $phone;
-
-    /** @var string */
-    public $model;
-
-    /** @var string */
-    public $contact;
-
-    /** @var string */
-    public $category;
-
-    /** @var int[] */
-    public $geofenceIds;
-
-    /** @var object */
-    public $attributes;
+    protected $fillable = [
+        'id',
+        'name',
+        'uniqueId',
+        'status',
+        'disabled',
+        'lastUpdate',
+        'positionId',
+        'groupId',
+        'phone',
+        'model',
+        'contact',
+        'category',
+        'geofenceIds',
+        'attributes',
+    ];
 
     public function getName(): string
     {
@@ -62,44 +37,27 @@ class Device implements Importable
         return $this->id;
     }
 
-    public static function find(string $id): self
+    public static function find(string $id)
     {
         $response = Client::get(self::ENDPOINT, [
-            'id' => $id,
+            'uniqueId' => $id,
         ]);
 
-        /** @var Device $device */
-        $device = Device::fromArray($response);
+        $devices = Device::hydrate($response);
 
-        return $device;
+        return $devices->first() ?? null;
     }
 
-    public function destroy(): string
+    public static function destroy($id)
     {
-        $url = sprintf('%s/%s', self::ENDPOINT, $this->id);
+        $url = sprintf('%s/%s', self::ENDPOINT, $id);
         Client::delete($url);
 
-        return $this->id;
+        return $id;
     }
 
-    public static function fromArray(array $object): Importable
+    public function delete()
     {
-        $device = new Device();
-        $device->id = $object['id'];
-        $device->name = $object['name'];
-        $device->uniqueId = $object['uniqueId'];
-        $device->status = $object['status'];
-        $device->disabled = $object['disabled'];
-        $device->lastUpdate = $object['lastUpdate'];
-        $device->positionId = $object['positionId'];
-        $device->groupId = $object['groupId'];
-        $device->phone = $object['phone'];
-        $device->model = $object['model'];
-        $device->contact = $object['contact'];
-        $device->category = $object['category'];
-        $device->geofenceIds = $object['geofenceIds'];
-        $device->attributes = $object['attributes'];
-
-        return $device;
+        return self::destroy($this->id);
     }
 }

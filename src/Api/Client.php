@@ -5,16 +5,18 @@ namespace Javleds\Traccar\Api;
 use Exception;
 use GuzzleHttp\Client as GuzzleClient;
 use Illuminate\Support\Arr;
+use Javleds\Traccar\Exceptions\TraccarApiCallException;
 
 class Client
 {
     /** @var Client */
     private $client;
 
-    public function __construct(string $baseUrl)
+    public function __construct(string $baseUrl, string $username, string $password)
     {
         $this->client = new GuzzleClient([
             'base_uri' => $baseUrl,
+            'auth'     => [$username, $password],
         ]);
     }
 
@@ -23,7 +25,14 @@ class Client
      */
     public function get(string $endpoint, array $params = [], array $options = [])
     {
-        $response = $this->client->get($endpoint, $this->prepareData($params, $options));
+        $response = null;
+
+        try {
+            $response = $this->client->get($endpoint, $this->prepareData($params, $options));
+        } catch (Exception $exception) {
+            $this->handleException($exception);
+        }
+
         return $this->buildResponse($response);
     }
 
@@ -32,7 +41,14 @@ class Client
      */
     public function post(string $endpoint, array $params = [], array $options = [])
     {
-        $response = $this->client->post($endpoint, $this->prepareData($params, $options));
+        $response = null;
+
+        try {
+            $response = $this->client->post($endpoint, $this->prepareData($params, $options));
+        } catch (Exception $exception) {
+            $this->handleException($exception);
+        }
+
         return $this->buildResponse($response);
     }
 
@@ -41,7 +57,14 @@ class Client
      */
     public function put(string $endpoint, array $params = [], array $options = [])
     {
-        $response = $this->client->post($endpoint, $this->prepareData($params, $options));
+        $response = null;
+
+        try {
+            $response = $this->client->post($endpoint, $this->prepareData($params, $options));
+        } catch (Exception $exception) {
+            $this->handleException($exception);
+        }
+
         return $this->buildResponse($response);
     }
 
@@ -50,8 +73,16 @@ class Client
      */
     public function delete(string $endpoint, array $params = [], array $options = [])
     {
-        $response = $this->client->delete($endpoint, $this->prepareData($params, $options));
-        return $this->buildResponse($response);
+        try {
+            $response = $this->client->delete($endpoint, $this->prepareData($params, $options));
+            if ($response->getStatusCode() === 204) {
+                return true;
+            }
+        } catch (Exception $exception) {
+            $this->handleException($exception);
+        }
+
+        return false;
     }
 
     private function prepareData(array $params = [], array $options = []): array
@@ -72,13 +103,17 @@ class Client
     }
 
     /**
-     * @param mixed $response
+     * @param mixed|null $response
      *
      * @return array|string
      * @throws Exception
      */
     private function buildResponse($response)
     {
+        if ($response === null) {
+            return [];
+        }
+
         $contentType = $this->getContentType($response->getHeader('content-type'));
         switch ($contentType) {
             case 'application/json':
@@ -107,5 +142,16 @@ class Client
         }
 
         return $contentType[0];
+    }
+
+    /**
+     * @throws TraccarApiCallException
+     */
+    private function handleException(Exception $exception): void
+    {
+        $hasNullPointerException = strpos($exception->getMessage(), 'NullPointerException') !== false;
+        if (!$hasNullPointerException) {
+            throw new TraccarApiCallException($exception);
+        }
     }
 }
