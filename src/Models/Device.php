@@ -37,10 +37,10 @@ class Device extends Model
         return $this->id;
     }
 
-    public static function find(string $id): self
+    public static function find(string $id)
     {
         $response = Client::get(self::ENDPOINT, [
-            'id' => $id,
+            'uniqueId' => $id,
         ]);
 
         $devices = Device::hydrate($response);
@@ -48,7 +48,7 @@ class Device extends Model
         return $devices->first() ?? null;
     }
 
-    public static function destroy($id): string
+    public static function destroy($id)
     {
         $url = sprintf('%s/%s', self::ENDPOINT, $id);
         Client::delete($url);
@@ -58,9 +58,6 @@ class Device extends Model
 
     public function delete()
     {
-        $url = sprintf('%s/%s', self::ENDPOINT, $this->id);
-        Client::delete($url);
-
-        return $this->id;
+        return self::destroy($this->id);
     }
 }

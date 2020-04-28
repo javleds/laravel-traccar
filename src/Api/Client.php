@@ -25,10 +25,12 @@ class Client
      */
     public function get(string $endpoint, array $params = [], array $options = [])
     {
+        $response = null;
+
         try {
             $response = $this->client->get($endpoint, $this->prepareData($params, $options));
         } catch (Exception $exception) {
-            throw new TraccarApiCallException($exception);
+            $this->handleException($exception);
         }
 
         return $this->buildResponse($response);
@@ -39,10 +41,12 @@ class Client
      */
     public function post(string $endpoint, array $params = [], array $options = [])
     {
+        $response = null;
+
         try {
             $response = $this->client->post($endpoint, $this->prepareData($params, $options));
         } catch (Exception $exception) {
-            throw new TraccarApiCallException($exception);
+            $this->handleException($exception);
         }
 
         return $this->buildResponse($response);
@@ -53,10 +57,12 @@ class Client
      */
     public function put(string $endpoint, array $params = [], array $options = [])
     {
+        $response = null;
+
         try {
             $response = $this->client->post($endpoint, $this->prepareData($params, $options));
         } catch (Exception $exception) {
-            throw new TraccarApiCallException($exception);
+            $this->handleException($exception);
         }
 
         return $this->buildResponse($response);
@@ -69,18 +75,19 @@ class Client
     {
         try {
             $response = $this->client->delete($endpoint, $this->prepareData($params, $options));
+            if ($response->getStatusCode() === 204) {
+                return true;
+            }
         } catch (Exception $exception) {
-            throw new TraccarApiCallException($exception);
+            $this->handleException($exception);
         }
 
-        return $this->buildResponse($response);
+        return false;
     }
 
     private function prepareData(array $params = [], array $options = []): array
     {
         $data = [];
-
-        $options['headers'] = $this->buildHeaders();
 
         if (config('traccar.debug_requests', false)) {
             $data['debug'] = true;
@@ -95,22 +102,18 @@ class Client
         return array_merge($data, $options);
     }
 
-    private function buildHeaders(): array
-    {
-        return [
-            'Accept'       => 'application/json',
-            'Content-Type' => 'application/json',
-        ];
-    }
-
     /**
-     * @param mixed $response
+     * @param mixed|null $response
      *
      * @return array|string
      * @throws Exception
      */
     private function buildResponse($response)
     {
+        if ($response === null) {
+            return [];
+        }
+
         $contentType = $this->getContentType($response->getHeader('content-type'));
         switch ($contentType) {
             case 'application/json':
@@ -139,5 +142,16 @@ class Client
         }
 
         return $contentType[0];
+    }
+
+    /**
+     * @throws TraccarApiCallException
+     */
+    private function handleException(Exception $exception): void
+    {
+        $hasNullPointerException = strpos($exception->getMessage(), 'NullPointerException') !== false;
+        if (!$hasNullPointerException) {
+            throw new TraccarApiCallException($exception);
+        }
     }
 }
