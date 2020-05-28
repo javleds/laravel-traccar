@@ -22,5 +22,13 @@ class TraccarServiceProvider extends ServiceProvider
             getBaseDir('config/traccar.php'),
             'traccar'
         );
+
+        $this->app->singleton('traccar-client', function() {
+            return new Api\Client(
+                config('traccar.base_url'),
+                config('traccar.auth.username'),
+                config('traccar.auth.password')
+            );
+        });
     }
 }

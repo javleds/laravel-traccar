@@ -2,6 +2,7 @@
 
 namespace Javleds\Traccar\Tests;
 
+use Javleds\Traccar\Facades\Client;
 use Javleds\Traccar\TraccarServiceProvider;
 use Orchestra\Testbench\TestCase;
 
@@ -16,6 +17,8 @@ class BaseTestCase extends TestCase
 
     protected function getPackageAliases($app): array
     {
-        return [];
+        return [
+            'Client' => Client::class,
+        ];
     }
 }
